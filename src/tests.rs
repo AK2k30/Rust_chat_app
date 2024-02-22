@@ -1,20 +1,21 @@
 use std::ops::Range;
 
-use rand::{thread_rng, Rng};
 use rand::distributions::Alphanumeric;
+use rand::{thread_rng, Rng};
 
+use rocket::http::uri::fmt::{Query, UriDisplay};
 use rocket::http::{ContentType, Status};
-use rocket::http::uri::fmt::{UriDisplay, Query};
 use rocket::local::asynchronous::{Client, LocalResponse};
 
-use rocket::tokio::{sync, join};
-use rocket::tokio::io::{BufReader, AsyncBufReadExt};
 use rocket::serde::json;
+use rocket::tokio::io::{AsyncBufReadExt, BufReader};
+use rocket::tokio::{join, sync};
 
 use super::*;
 
 async fn send_message<'c>(client: &'c Client, message: &Message) -> LocalResponse<'c> {
-    client.post(uri!(post))
+    client
+        .post(uri!(post))
         .header(ContentType::Form)
         .body((message as &dyn UriDisplay<Query>).to_string())
         .dispatch()
